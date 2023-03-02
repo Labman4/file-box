@@ -5,9 +5,7 @@ import {
 
 // The npm package of my best choice for QR code decoding on Angular SPA
 // https://dev.to/j_sakamoto/the-npm-package-of-my-best-choice-for-qr-code-decoding-on-angular-spa-4747?returning-user=true
-import Jimp             from 'jimp'
-import jsQR             from 'jsqr'
-
+import QRCode from 'qrcode'
 /**
  * https://www.npmjs.com/package/qrcode
  *  Huan(202002): This module is encode only.
@@ -15,20 +13,13 @@ import jsQR             from 'jsqr'
 import { toFileStream } from 'qrcode'
 
 export async function bufferToQrValue (buf: Buffer): Promise<string> {
-  const image = await Jimp.read(buf)
-  const qrCodeImageArray = new Uint8ClampedArray(image.bitmap.data.buffer)
+  let qrvalue = "";
+  QRCode.toString(buf.toString(), { errorCorrectionLevel: 'H' }, function (err, value) {
+    if (err) throw err;
+    qrvalue = value;
+  });
+  return qrvalue;
 
-  const qrCodeResult = jsQR(
-    qrCodeImageArray,
-    image.bitmap.width,
-    image.bitmap.height,
-  )
-
-  if (qrCodeResult) {
-    return qrCodeResult.data
-  } else {
-    throw new Error('bufferToQrcode(buf) fail!')
-  }
 }
 
 export async function qrValueToStream (value: string): Promise<Readable> {
